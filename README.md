@@ -41,10 +41,13 @@ $ arm-none-eabi-gcc --version
 
 The project has been confirmed to compile up to `arm-none-eabi-gcc (15:14.2.rel1-1) 14.2.1 20241119`.
 
-To build, download or git-clone the entire repository.
-Then navigate to `libopencm3` and build it using `make`.
-Next, navigate to the emulator source directory, run `make clean` to clean previous artifacts, and run `make`.
-This will yield a `.bin` file used to flash the microcontroller.
+To build, clone the entire repository recursively.
+
+ 1. git clone --recurse-submodules https://github.com/AntonKxxx/i2c-stm32-usb our-project
+ 2. cd our-project 
+ 3. make -C libopencm3 # (Only needed once)
+ 4. make clean -C src_72mhz 
+ 5. make -C src_72mhz # This will build a `.bin` file used to flash the microcontroller.
 
 Flashing the microcontroller can be done in several ways. The most reliable method is using the built-in BOOT0 serial bootloader. This has been verified to work on virtually all Chinese clones, provided they haven't placed excessively large resistors in the BOOT0 jumper circuit.
 
