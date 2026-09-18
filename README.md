@@ -36,18 +36,40 @@ Since the project is distributed in source code format, build output depends on 
 You can check your version with:
 
 ```bash
-$ arm-none-eabi-gcc --version
+arm-none-eabi-gcc --version
 ```
 
 The project has been confirmed to compile up to `arm-none-eabi-gcc (15:14.2.rel1-1) 14.2.1 20241119`.
 
-To build, clone the entire repository recursively.
+### To build, clone the entire repository recursively.
 
- 1. git clone --recurse-submodules https://github.com/AntonKxxx/i2c-stm32-usb our-project
- 2. cd our-project 
- 3. make -C libopencm3 # (Only needed once)
- 4. make clean -C src_72mhz 
- 5. make -C src_72mhz # This will build a `.bin` file used to flash the microcontroller.
+```bash
+git clone --recurse-submodules https://github.com/AntonKxxx/i2c-stm32-usb.git
+```
+
+### Build libopencm3 (Only needed once)
+
+```bash
+cd i2c-stm32-usb/libopencm3
+```
+
+```bash 
+make TARGETS='stm32/f1'
+```
+### Build a `.bin` file used to flash the microcontroller.
+
+
+```bash
+cd ../src_72mhz
+```
+
+```bash
+make clean
+```
+
+```bash 
+make 
+```
 
 Flashing the microcontroller can be done in several ways. The most reliable method is using the built-in BOOT0 serial bootloader. This has been verified to work on virtually all Chinese clones, provided they haven't placed excessively large resistors in the BOOT0 jumper circuit.
 
@@ -65,6 +87,8 @@ Alternatively, an ST-Link debugger can be used, though it may not work with all 
 
 ```bash
 sudo apt install stlink-tools
+```
+```bash
 st-flash write cp2112_emulator.bin 0x08000000
 ```
 
@@ -82,9 +106,9 @@ st-flash write cp2112_emulator.bin 0x08000000
     SCL -> PB6 (external I2C pull-up resistor required, e.g., 4.7kΩ to 3.3V)
     SDA -> PB7 (external I2C pull-up resistor required, e.g., 4.7kΩ to 3.3V)
 
-    READ_LED -> PB1
-    WRITE_LED -> PB10
-    CLOCK_OK_LED -> PC13
+    READ_LED -> PB1 (open drain)
+    WRITE_LED -> PB10 (open drain)
+    CLOCK_OK_LED -> PC13 (Blue Pill board led)
 
 ## Verification and Testing
 
@@ -109,7 +133,7 @@ This will list all available I2C buses.
 If the list is empty, on some Debian-derived distributions execute as root:
 
 ```bash
- # modprobe i2c-dev
+modprobe i2c-dev
 ```
 
 Then repeat:
@@ -248,10 +272,8 @@ awk -v start="$start_time" -v end="$end_time" -v size="$EEPROM_SIZE" 'BEGIN {
     byte_ms = total_ms / size;
     byte_us = byte_ms * 1000;
     
-    printf "EEPROM 256Kbit read time: %.2f ms
-", total_ms;
-    printf "Average time per 1 byte:  %.4f ms (or %.2f us)
-", byte_ms, byte_us;
+    printf "EEPROM 256Kbit read time: %.2f ms\n", total_ms;
+    printf "Average time per 1 byte:  %.4f ms (or %.2f us)\n", byte_ms, byte_us;
 }'
 ```
 
@@ -338,7 +360,7 @@ root@Itoc:~# /tmp/benchmark_cat.sh
 EEPROM 256Kbit read time: 4890.00 ms
 Average time per 1 byte:  0.1492 ms (or 149.23 us)
 
-GD32F103 emulator cp2112
+GD32F103 emulator cp2112 arm-none-eabi-gcc (15:9-2019-q4-0ubuntu1) 9.2.1 20191025
 root@Server_01:~# /tmp/benchmark_cat.sh
 EEPROM 256Kbit read time: 5140.00 ms
 Average time per 1 byte:  0.1569 ms (or 156.86 us)
